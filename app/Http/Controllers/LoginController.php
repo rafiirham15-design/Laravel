@@ -16,24 +16,24 @@ class LoginController extends Controller
 
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function googleCallback(Request $request)
+public function googleCallback(Request $request)
 {
-    $user = Socialite::driver('google')->user();
+    $user = Socialite::driver('google')->stateless()->user();
 
     $existingUser = User::where('email', $user->email)
         ->where('role', 'Admin')->first();
 
     if (!empty($existingUser)) {
         $existingUser->update([
-            'google_id' => $user->google_id,
+            'google_id' => $user->id,
             'name' => $user->name,
             'avatar' => $user->avatar,
         ]);
         Auth::login($existingUser);
-        return redirect('/produk');
+        return redirect('/');
     } else {
         return abort(403);
     }
